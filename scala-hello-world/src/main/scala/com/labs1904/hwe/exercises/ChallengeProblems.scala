@@ -1,75 +1,62 @@
 package com.labs1904.hwe.exercises
 
 object ChallengeProblems {
-  /*
-    1. Define a function that takes in a String and returns that string with no changes
-    Write your function below this comment - refer to Challenge Tests to have your test pass
-    Params - String
-    Returns - String
-  */
 
 
-  /*
-  2. Write a function that returns "Hello World!" and takes in nothing as a parameter
-  Params - None
-  Returns - String
-   */
+  def catsAgeOption(input: Option[Int]): Option[Int] = {
 
-  /*
-  3. Write a function that takes in a list and returns the total size of the list
-  -Note - Use the .size method
-  Params - List[Int]
-  Returns - Int
-   */
-
-  /*
-  4. Write a function that takes in an int and adds an int that you create within the function and returns the addition of the two together
-  Note - Your variable must be a val and must be equal to 25
-  Params - Int
-  Returns - Int
-   */
+    if (input.isEmpty)
+      return None;
+    else
+      return Some(catsAge(input.get))
+  }
 
 
-  /*
-   5. Write a function that takes in a list of strings, and return a list of strings where every letter is capitalized
-   Hint - you can use .map here
-   Params - List[String]
-   Returns - List[String]
-*/
+  def containsCar(input: List[String]) : List[String] = {
+    input.filter(testVal => testVal.contains("car"))
+  }
 
-  /*
-  6. Write a function that returns a new list, where only elements of the list passed in that are 0 or positive numbers are kept.
-  Params - List[Int]
-  Returns - List[Int]
-   */
 
-  /*
-  7. Returns a new list, where only the elements passed in containing "car" are kept to the new list.
-  Params - List[String]
-  Returns - List[String]
- */
+  def sameString(theStr: String) : String = {
+    theStr
+  }
 
-  /*
-    8. Returns the sum of all numbers passed in.
-    Params - List[Int]
-    Returns - Int
-   */
 
-  /*
-  9. Write a function that takes in an integer with a cats age, and return the human age equivalent.
-    A human year is equivalent to 4 cat years
-    Params - Int
-    Returns - Int
-   */
+  def helloWorld() : String = {
+    "Hello World!"
+  }
 
-  /*
-  10. Same question as #9, but this time you are given a Option[Int]
-    If an int is provided, returns a cats age for the human's age equivalent.
-    If None is provided, return None
-    A humanYear is equivalent to four catYears
-    -Params - Option[Int]
-    -Returns - Option[Int]
- */
+
+
+  def listSize(list: List[Int]): Int = {
+    list.size
+  }
+
+  def sumInts(theVal: Int): Int = {
+    theVal + 25
+  }
+
+  def upper(strList: List[String]): List[String] = {
+    strList.map(x => x.toUpperCase())
+  }
+
+
+  def filterNegatives(intList: List[Int]) : List[Int] = {
+    intList.filter(testVal => testVal >= 0)
+  }
+
+  def sumList(intList: List[Int]) : Int = {
+    var sum = 0;
+    intList.foreach(x => sum += x);
+    return sum;
+  }
+
+  def catsAge(humanAge: Int): Int = {
+    return humanAge * 4
+  }
+
+
+
 
   /*
   11. Write a function that takes in a list of ints, and return the minimum of the ints provided
@@ -83,13 +70,20 @@ object ChallengeProblems {
  */
 
 
+  def minimumOption(input: List[Option[Int]]): Option[Int] = {
+
+    val nonNoneOptions: List[Int] = input.filter(inp => !inp.isEmpty).map(x => x.get)
+    if (nonNoneOptions.length > 0)
+      return Some(nonNoneOptions.min)
+    else
+      return None
+
+  }
 
 
-
-
-
-
-
+  def minimum(input: List[Int]): Int = {
+    input.min
+  }
 
 
 }

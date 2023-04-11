@@ -19,18 +19,24 @@ reword confusing descriptions in a way that makes sense to you.
 ## Questions
 #### What problem does Kafka help solve? Use a specific use case in your answer 
 * Helpful resource: [Confluent Motivations and Use Cases](https://youtu.be/BsojaA1XnpM)
+<<<<<<< HEAD
+=======
+* A: Kafka was created as means to handle data in real time.  There was a shift from only handling data as static snapshots, to handling streams of events. One can think of a video game and how the interactions between users and AI opponents need to interact and how those need to happen in real time.  This would be one use case of Kafka.
+>>>>>>> 1e461f5 (Have scala Challenge and StretchProblems passing unit tests.)
 
 #### What is Kafka?
 * Helpful resource: [Kafka in 6 minutes](https://youtu.be/Ch5VhJzaoaI) 
 
 #### Describe each of the following with an example of how they all fit together: 
- * Topic
- * Producer
- * Consumer 
- * Broker
- * Partition
+ * Topic - a stream of related messages. A topic is a durable log stored on disk.  The hierarchy of topics goes Topics --> Partitions --> Segments
+ * Producer - a producer is an entity that pushes data to a Kafka cluster.  Producers are written by the developer.
+ * Consumer - a consumer is an entity that reads data from a Kafka cluster.  Consumes are written by the developer.
+ * Broker - is a "machine" or compute instance within a cluster.  Each has its own disk.  Brokers are infrastructure which are not written by the developer.
+ * Partition - a partition is part of a topic.  Partitioning allows topics to be split across multiple brokers and is how topics can be scaled. Every event in a partition is a strictly ordered piece of the log. 
+ * Zookeeper - a zookeeper manages the consensus of distributed state.  There is a proposal to remove zookeepers from Kafka
 
 #### Describe Kafka Producers and Consumers
+* A: Producers are entities that produce data, and they are applications that are written by developers.  They push data to Kafka clusters, and clusters are comprised of brokers, and that data is read by consumers.  Like producers, consumers are applications written by developers but they read data from clusters.
 
 #### How are consumers and consumer groups different in Kafka? 
 * Helpful resource: [Consumers](https://youtu.be/lAdG16KaHLs)

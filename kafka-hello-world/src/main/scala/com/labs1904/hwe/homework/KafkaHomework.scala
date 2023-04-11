@@ -1,3 +1,8 @@
+
+// Q: What is a typical way that secrets get stored with a project (key vault)?  And would a class like java.util.Properties still get used?
+
+// Q: Can we think of 'Properties' class a dictionary of sorts.  It seemed the KafkaConsumer constructor was expecting to find a huge number of values.
+
 package com.labs1904.hwe.homework
 
 import java.time.Duration
@@ -17,24 +22,28 @@ object KafkaHomework {
    */
 
     //TODO: If these are given in class, change them so that you can run a test. If not, don't worry about this step
-  val Topic: String = "change-me"
+  val Topic: String = "question-1"
 
   implicit val formats: DefaultFormats.type = DefaultFormats
 
   def main(args: Array[String]): Unit = {
 
     // Create the KafkaConsumer
-    //TODO: Write in a comment what these lines are doing. What are the properties necessary to instantiate a consumer?
+    // TODO: Write in a comment what these lines are doing. What are the properties necessary to instantiate a consumer?
+    // Create a Properties dictionary for keys that the Kafka consumer is looking for,
+    // which includes the group its going to join (random ID in this case), a connection string for the
+    // bootstrap server, and deserializers for the keys and values
     val properties = getProperties(BOOTSTRAP_SERVER)
     val consumer: KafkaConsumer[String, String] = new KafkaConsumer[String, String](properties)
 
 
-    //TODO: What does this line mean? Write your answer in a comment below
+    // TODO: What does this line mean? Write your answer in a comment below
+    // Subscribe to the given list of topics to get dynamically assigned partitions.
     consumer.subscribe(Arrays.asList(Topic))
 
     while (true) {
       // TODO: Change this to be every 5 seconds
-      val duration: Duration = Duration.ofMillis(100)
+      val duration: Duration = Duration.ofSeconds(5)
 
       //TODO: Look up the ConsumerRecords class below, in your own words what is the class designed to do?
       val records: ConsumerRecords[String, String] = consumer.poll(duration)
@@ -52,7 +61,10 @@ object KafkaHomework {
 
   def getProperties(bootstrapServer: String): Properties = {
     // Set Properties to be used for Kafka Consumer
+
+    // the properties class is a persistent set of properties
     val properties = new Properties
+    // from browsing into the Consumer cstor, it appears to use these properties to establish a connection
     properties.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServer)
     properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)
     properties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, classOf[StringDeserializer].getName)

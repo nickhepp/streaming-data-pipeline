@@ -28,8 +28,13 @@ object OptionEither {
    */
   def averageTemperature(temperatures: List[WeatherStation]): Option[Int] = {
 
-    temperatures.a
+    val weatherStationsTemps = temperatures.
+      filter(weatherStation => !weatherStation.temperature.isEmpty).
+      map(weatherStation => weatherStation.temperature.get)
 
-
+    if (weatherStationsTemps.size > 0)
+      return Some(weatherStationsTemps.sum / weatherStationsTemps.size)
+    else
+      return None
   }
 }

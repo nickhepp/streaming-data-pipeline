@@ -23,7 +23,7 @@ moving on to the next challenge. There are 12 challenges total.
 *Additional Note - Uncomment test cases one at a time to run the tests
 
 Path to completed work:
-``
+`https://github.com/nickhepp/streaming-data-pipeline/tree/nick/week2_challanges`
 `cd /c/git_src/streaming-data-pipeline && git checkout nick/scalla_hello_world_clean`
 
 ## Challenge #3 - Complete the decoder challenge from the application in Scala
@@ -35,13 +35,18 @@ Path to completed work:
 `cd /c/git_src/de-hours-with-experts && git checkout nick/homework_week2_challenge3`
 
 ## Challenge #4: Complete Option either questions in the /practice directory. 
-Make sure to run tests in the OptionEitherTests suite to ensure all tests pass. 
+Make sure to run tests in the OptionEitherTests suite to ensure all tests pass.
 
+Path to completed work:
+`https://github.com/nickhepp/streaming-data-pipeline/tree/nick/week2_challanges`
+`cd /c/git_src/streaming-data-pipeline && git checkout nick/scalla_hello_world_clean`
 
 ## Challenge #5: Complete Stretch Problems
-
 Complete stretch problems and ensure all tests pass. 
 
+Path to completed work:
+`https://github.com/nickhepp/streaming-data-pipeline/tree/nick/week2_challanges`
+`cd /c/git_src/streaming-data-pipeline && git checkout nick/scalla_hello_world_clean`
 
 # Tips
 

@@ -22,10 +22,17 @@ moving on to the next challenge. There are 12 challenges total.
 *Note- Make sure to name each function with the name you find in the tests
 *Additional Note - Uncomment test cases one at a time to run the tests
 
+Path to completed work:
+``
+`cd /c/git_src/streaming-data-pipeline && git checkout nick/scalla_hello_world_clean`
 
 ## Challenge #3 - Complete the decoder challenge from the application in Scala
 Repo is here: https://github.com/1904labs/de-hours-with-experts Show your work to the expert in your group 
 once you've completed the scala portion. 
+
+Path to completed work: 
+`https://github.com/nickhepp/de-hours-with-experts/tree/nick/homework_week2_challenge3`
+`cd /c/git_src/de-hours-with-experts && git checkout nick/homework_week2_challenge3`
 
 ## Challenge #4: Complete Option either questions in the /practice directory. 
 Make sure to run tests in the OptionEitherTests suite to ensure all tests pass. 

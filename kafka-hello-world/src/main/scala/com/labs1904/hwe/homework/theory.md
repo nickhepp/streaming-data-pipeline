@@ -32,6 +32,34 @@ reword confusing descriptions in a way that makes sense to you.
  * Partition - a partition is part of a topic.  Partitioning allows topics to be split across multiple brokers and is how topics can be scaled. Every event in a partition is a strictly ordered piece of the log. 
  * Zookeeper - a zookeeper manages the consensus of distributed state.  There is a proposal to remove zookeepers from Kafka
 
+```mermaid
+
+graph LR;
+
+    subgraph Producers
+        direction BT
+        producer1
+        producer2
+    end
+
+    subgraph Kafka_Cluster [Kafka Cluster]
+        direction BT
+        broker1
+        broker2
+        zookeeper(zookeeper)
+    end
+
+    subgraph Consumers
+        direction BT
+        consumer1
+        consumer2
+    end
+
+    Producers --push message--> Kafka_Cluster
+    Kafka_Cluster --pull message--> Consumers
+
+```
+
 #### Describe Kafka Producers and Consumers
 * A: Producers are entities that produce data, and they are applications that are written by developers.  They push data to Kafka clusters, and clusters are comprised of brokers, and that data is read by consumers.  Like producers, consumers are applications written by developers but they read data from clusters.
 
@@ -42,8 +70,10 @@ reword confusing descriptions in a way that makes sense to you.
 #### How are Kafka offsets different than partitions? 
 
 #### How is data assigned to a specific partition in Kafka? 
+A: Messages have keys and the keys dictate wich messages get assigned to which partitions.
 
 #### Describe immutability - Is data on a Kafka topic immutable? 
+A: Yes, data in Kafka is immutable.  Once the data is written it cant be changed. 
 
 #### How is data replicated across brokers in kafka? If you have a replication factor of 3 and 3 brokers, explain how data is spread across brokers
 * Helpful resource [Brokers and Replication factors](https://youtu.be/ZOU7PJWZU9w)

@@ -19,7 +19,11 @@ Here is what you need to complete:
 #### Run connection test to make sure you have access
 
 In com.labs1904.hwe navigate to ConnectionTest and fill out the strings with the correct values that are given to you in class. 
-Run the class and make sure you have an output that says Message Received: <some message> 
+Run the class and make sure you have an output that says Message Received: 
+```cmd
+Message Received: Congrats!! You have successfully connected to the cluster! 
+Message Received: Hello world from Kit!
+```
 
 #### Consume from "question-1" and print to console
 

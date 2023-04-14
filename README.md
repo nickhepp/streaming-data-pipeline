@@ -21,10 +21,10 @@ There are multiple projects inside this repository:
  5. [Streaming data pipeline final project](./streaming-data-pipeline)
  
  ```mermaid
- flowchart LR
-    Kafka -> Spark
-    Spark -> HBase
-    Spark -> HDFS
-    HDFS -> Hive
+ graph LR;
+    Kafka --> Spark;
+    Spark --> HBase;
+    Spark --> HDFS;
+    HDFS --> Hive;
  ```
  

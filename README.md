@@ -19,3 +19,12 @@ There are multiple projects inside this repository:
  3. [HBase practice project](./hbase-hello-world)
  4. [Spark practice project](./spark-hello-world)
  5. [Streaming data pipeline final project](./streaming-data-pipeline)
+ 
+ ```mermaid
+ flowchart LR
+    Kafka -> Spark
+    Spark -> HBase
+    Spark -> HDFS
+    HDFS -> Hive
+ ```
+ 

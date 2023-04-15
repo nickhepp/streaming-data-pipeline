@@ -11,7 +11,7 @@ object SimpleProducer {
     // Create Kafka Producer
     val properties = Util.getProperties(BOOTSTRAP_SERVER)
     val producer = new KafkaProducer[String, String](properties)
-    val messageToSend = "Change Me"
+    val messageToSend = "Nick H was here!!!"
 
     val record = new ProducerRecord[String, String](Topic, messageToSend)
     producer.send(record)

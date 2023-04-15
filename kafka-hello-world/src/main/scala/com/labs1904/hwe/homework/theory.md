@@ -66,8 +66,11 @@ graph LR;
 #### How are consumers and consumer groups different in Kafka? 
 * Helpful resource: [Consumers](https://youtu.be/lAdG16KaHLs)
 * Helpful resource: [Confluent Consumer Overview](https://youtu.be/Z9g4jMQwog0)
+A: Consumers within a group read from exclusive partitions.  There fore we cannot have more consumers than partitions.
+
 
 #### How are Kafka offsets different than partitions? 
+A: A partition is a way to chunk up data within a topic.
 
 #### How is data assigned to a specific partition in Kafka? 
 A: Messages have keys and the keys dictate wich messages get assigned to which partitions.
@@ -79,3 +82,5 @@ A: Yes, data in Kafka is immutable.  Once the data is written it cant be changed
 * Helpful resource [Brokers and Replication factors](https://youtu.be/ZOU7PJWZU9w)
 
 #### What was the most fascinating aspect of Kafka to you while learning? 
+
+

@@ -21,7 +21,7 @@ object KafkaHomework {
    * Implement all the todos below
    */
 
-    //TODO: If these are given in class, change them so that you can run a test. If not, don't worry about this step
+  //TODO: If these are given in class, change them so that you can run a test. If not, don't worry about this step
   val Topic: String = "question-1"
 
   implicit val formats: DefaultFormats.type = DefaultFormats
@@ -46,6 +46,9 @@ object KafkaHomework {
       val duration: Duration = Duration.ofSeconds(5)
 
       //TODO: Look up the ConsumerRecords class below, in your own words what is the class designed to do?
+      // Q: Im cnofused here b/c it almost sounds like a list of a list from the class description,
+      // but the coding below makes it look like just a single list.  Also from reading the description
+      // I cant tell if it just read one partition.  It does look like it reads just one partition.
       val records: ConsumerRecords[String, String] = consumer.poll(duration)
 
       records.forEach((record: ConsumerRecord[String, String]) => {

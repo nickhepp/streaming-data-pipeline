@@ -19,10 +19,7 @@ reword confusing descriptions in a way that makes sense to you.
 ## Questions
 #### What problem does Kafka help solve? Use a specific use case in your answer 
 * Helpful resource: [Confluent Motivations and Use Cases](https://youtu.be/BsojaA1XnpM)
-<<<<<<< HEAD
-=======
 * A: Kafka was created as means to handle data in real time.  There was a shift from only handling data as static snapshots, to handling streams of events. One can think of a video game and how the interactions between users and AI opponents need to interact and how those need to happen in real time.  This would be one use case of Kafka.
->>>>>>> 1e461f5 (Have scala Challenge and StretchProblems passing unit tests.)
 
 #### What is Kafka?
 * Helpful resource: [Kafka in 6 minutes](https://youtu.be/Ch5VhJzaoaI) 

@@ -21,9 +21,10 @@ powershell.exe -ExecutionPolicy Bypass -File Configure-Hadoop.ps1
 
 #>
 
-
+# If we don't find the 'winutils' directory, assume it hasnt been setup yet and proceed.
 $winutilsPath = "$PSScriptRoot\winutils"
 if (Test-Path $winutilsPath) {
+    # otherwise we are done
     Write-Host "Winutils folder already exists, exiting..."
     return
 }
@@ -31,6 +32,7 @@ if (Test-Path $winutilsPath) {
 Write-Host "Cloning winutils repository..."
 git clone https://github.com/steveloughran/winutils $winutilsPath
 
+# find the highest versioned hadoop install in winutils
 $hadoopHome = Get-ChildItem -Path $winutilsPath -Directory |
                 Where-Object { $_.Name -match '\d+\.\d+\.\d+' } |
                 Sort-Object -Descending |
@@ -38,11 +40,17 @@ $hadoopHome = Get-ChildItem -Path $winutilsPath -Directory |
                 Resolve-Path |
                 Select-Object -ExpandProperty Path
 
+# drop the prefixed "Microsoft.PowerShell.Core\FileSystem::"
+$hadoopHome = Convert-Path $hadoopHome
+                
 Write-Host "HADOOP_HOME variable calculated to be: $hadoopHome"
 
 Write-Host "Adding/updating HADOOP_HOME environment variable..."
 [Environment]::SetEnvironmentVariable("HADOOP_HOME", $hadoopHome, [EnvironmentVariableTarget]::Machine)
 
+# Now that we added another git repo in our existing repo, we want to make sure
+# our existing repo doesnt try to claim these files.  We do this by telling
+# our existing repo to ignore the new winutils folder.
 $gitIgnorePath = "$PSScriptRoot\.gitignore"
 if (-not (Test-Path $gitIgnorePath)) {
     Write-Host "Creating .gitignore file..."
@@ -57,5 +65,5 @@ if (-not ($gitIgnoreContent -match $gitIgnoreVal)) {
     git add $gitIgnorePath
 }
 
-Write-Host "Don't forget to restart IntelliJ so the environment variable value is loaded in the development environment."
+Write-Host "Don't forget to restart IntelliJ so the added/updated environment variable value is loaded in the IDE."
 

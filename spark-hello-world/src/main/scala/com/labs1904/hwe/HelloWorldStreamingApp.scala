@@ -1,7 +1,7 @@
 package com.labs1904.hwe
 
 import org.apache.log4j.Logger
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, SparkSession}
 import org.apache.spark.sql.execution.streaming.MemoryStream
 import org.apache.spark.sql.streaming.{OutputMode, StreamingQuery, Trigger}
 
@@ -17,6 +17,7 @@ object HelloWorldStreamingApp {
 
   def main(args: Array[String]): Unit = {
     logger.info(s"$jobName starting...")
+    val ty: Int = 5: Int
 
     try {
       // Initialize the Spark framework for running locally on your pc
@@ -31,7 +32,7 @@ object HelloWorldStreamingApp {
       // We'll create a dummy stream from memory that we populate manually.
       import spark.sqlContext.implicits._
       val inputStream = new MemoryStream[String](1, spark.sqlContext)
-      val dataset = inputStream.toDS()
+      val dataset: Dataset[String] = inputStream.toDS()
 
       // Print data out to the console every 5 seconds
       val query = dataset.writeStream

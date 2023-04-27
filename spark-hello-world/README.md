@@ -69,8 +69,12 @@ Update the application to output each word and the number of times it occurs, so
 
 Open up `HelloWorldStreamingApp.scala`. Run it just like you did the Batch App above.
 
-How often is data printed out?
-Where is the data coming from?
+Q: How often is data printed out?
+A: Every 5 seconds.
+
+Q: Where is the data coming from?
+A: Every 5 seconds it reads a text file and outputs it to a memory stream.
+
 Why do we run locally?
 
 ## Challenge 4: Implement Word Count in the WordCountStreamingApp Structured Streaming app

@@ -19,25 +19,31 @@ reword confusing descriptions in a way that makes sense to you.
 
 ## Questions
 #### What is a NoSQL database? 
-
+A: A NoSQL database is basically every other type of data base that is not a relational database.  Often the data is a key-value pair or the NoSQL database will have tables but the tables cannot be joined and the table structures are not near as rigid as with relation databases.  NoSQL systems are also horizontally scalable meaning that they can be scaled by adding more computers, this is opposed to SQL databases which are vertically scalable by adding more RAM and cores to the single computer.  NoSQL databases trade ACID compliance for speed.
 
 #### In your own words, what is Apache HBase? 
-
+A: HBase is a distributed and scalable big data store that is based on Google's design of Bigtable.  It's a NoSQL database.
 
 #### What are some strengths and limitations of HBase? 
 * [HBase By Examples](https://sparkbyexamples.com/apache-hbase-tutorial/)
+A: Strengths - it can be scaled to handle massive amounts of data.  It can store about any type of data.  Limitations - data can't be joined.
+
 
 #### Explain the following concepts: 
-* Rowkey
-* Column Qualifier
-* Column Family
+* Rowkey - a rowkey is a way to look up data by a unique indentifier.
+* Column Qualifier - Essentially the name of a column.
+* Column Family - Set of columns physically stored together on a single disk.
 
+Table --> Rowkey --> Column Family --> Column Qualifier/Name
 
 #### What are the differences between Get and Put commands in HBase? 
 * [HBase commands](https://www.tutorialspoint.com/hbase/hbase_create_data.htm)
 
+Get - The get command and the get() method of HTable class are used to read data from a table in HBase.
+Put - Using put command, you can insert rows into a table.
 
 #### What is the HBase Scan command for? 
 * [HBase Scan](https://www.tutorialspoint.com/hbase/hbase_scan.htm)
+The scan command is used to view the data in HTable.
 
 #### What was the most interesting aspect of HBase when went through all the questions? 

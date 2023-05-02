@@ -1,13 +1,16 @@
 package com.labs1904.hwe
-
+import com.labs1904.hwe.WordCountBatchApp.splitSentenceIntoWords
+import com.labs1904.hwe.util.Connection._
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.apache.log4j.Logger
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.streaming.{OutputMode, Trigger}
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.streaming.{OutputMode, StreamingQuery, Trigger}
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.execution.streaming.MemoryStream
 
 import java.util.Properties
+import scala.util.Random
 
 /**
  * Spark Structured Streaming app
@@ -17,15 +20,15 @@ object WordCountStreamingApp {
   val jobName = "WordCountStreamingApp"
   // TODO: define the schema for parsing data from Kafka
 
-  val bootstrapServer : String = "CHANGEME"
-  val username: String = "CHANGEME"
-  val password: String = "CHANGEME"
+  //val bootstrapServer : String = "CHANGEME"
+  //val username: String = "CHANGEME"
+  //val password: String = "CHANGEME"
   val Topic: String = "word-count"
 
   //Use this for Windows
   //val trustStore: String = "src\\main\\resources\\kafka.client.truststore.jks"
   //Use this for Mac
-  val trustStore: String = "src/main/resources/kafka.client.truststore.jks"
+  //val trustStore: String = "src/main/resources/kafka.client.truststore.jks"
 
   def main(args: Array[String]): Unit = {
     logger.info(s"$jobName starting...")
@@ -39,11 +42,11 @@ object WordCountStreamingApp {
 
       import spark.implicits._
 
-      val sentences = spark
+      val sentences: Dataset[String] = spark
         .readStream
         .format("kafka")
         .option("maxOffsetsPerTrigger", 10)
-        .option("kafka.bootstrap.servers", bootstrapServer)
+        .option("kafka.bootstrap.servers", BOOTSTRAP_SERVER)
         .option("subscribe", "word-count")
         .option("kafka.acks", "1")
         .option("kafka.key.serializer", classOf[StringSerializer].getName)
@@ -51,18 +54,22 @@ object WordCountStreamingApp {
         .option("startingOffsets","earliest")
         .option("kafka.security.protocol", "SASL_SSL")
         .option("kafka.sasl.mechanism", "SCRAM-SHA-512")
-        .option("kafka.ssl.truststore.location", trustStore)
-        .option("kafka.sasl.jaas.config", getScramAuthString(username, password))
+        .option("kafka.ssl.truststore.location", TRUST_STORE)
+        .option("kafka.sasl.jaas.config", getScramAuthString(USERNAME, PASSWORD))
         .load()
         .selectExpr("CAST(value AS STRING)").as[String]
 
-      sentences.printSchema
+      val counts = sentences
+        .map(
+          sentence => splitSentenceIntoWords(sentence))
+        .flatMap(item => item)
+        .groupBy("value").agg(count("value").alias("count"))
+        .sort(desc("count"), desc("value"))
+        .limit(10)
 
-      // TODO: implement me
-      //val counts = ???
-
-      val query = sentences.writeStream
-        .outputMode(OutputMode.Append())
+      val query = counts
+        .writeStream
+        .outputMode(OutputMode.Complete())
         .format("console")
         .trigger(Trigger.ProcessingTime("5 seconds"))
         .start()

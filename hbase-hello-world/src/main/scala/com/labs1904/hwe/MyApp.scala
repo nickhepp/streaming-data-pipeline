@@ -34,7 +34,7 @@ object MyApp {
       val conf = HBaseConfiguration.create()
       conf.set("hbase.zookeeper.quorum", HBASE_ZOOKEEPER_QUORUM)
       connection = ConnectionFactory.createConnection(conf)
-      val table: Table = connection.getTable(TableName.valueOf("nheppermann:users"))
+      val table: Table = connection.getTable(TableName.valueOf(HBASE_TABLE))
 
       // CHALLENGE #1: read data from existing user
       if (exeChallenge1)

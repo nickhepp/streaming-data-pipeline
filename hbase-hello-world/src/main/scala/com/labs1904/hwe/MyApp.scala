@@ -78,7 +78,7 @@ object MyApp {
       // Challenge #4: Delete the user with ID = 99
       if (exeChallenge4)
       {
-        val delete = new Delete()
+        //val delete = new Delete()
       }
 
 

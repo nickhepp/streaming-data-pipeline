@@ -6,7 +6,7 @@ import org.apache.hadoop.hbase.util.Bytes
 class HBaseDataConnection(table: Table) extends IDataConnection {
 
 
-  private def getValue[T](rowKey: String,
+  def getValue[T](rowKey: String,
                   columnFamily: String,
                   columnQualifier: String,
                   bytesToValHandler: (Array[Byte]) => T): T = {
@@ -45,27 +45,27 @@ class HBaseDataConnection(table: Table) extends IDataConnection {
       resultBytes => Bytes.toBoolean(resultBytes))
   }
 
-  private def putValue[T](rowKey: String,
+  private def putValue(rowKey: String,
                           columnFamily: String,
                           columnQualifier: String,
-                          value: T,
-                          bytesToValHandler: (T) => Array[Byte]): Unit = {
+                          value: Array[Byte]): Unit = {
     val put: Put = new Put(Bytes.toBytes(rowKey))
     val columnFamilyBytes = Bytes.toBytes(columnFamily)
     val columnQualifierBytes = Bytes.toBytes(columnQualifier)
-
-
-    put.addColumn(columnFamilyBytes, columnQualifierBytes, Bytes.toBytes(value));
-    val clmnGet = get.addColumn(columnFamilyBytes, columnQualifierBytes)
-    val result: Result = table.get(clmnGet)
-    val resultBytes: Array[Byte] = result.getValue(columnFamilyBytes, columnQualifierBytes)
-    bytesToValHandler(resultBytes)
+    put.addColumn(columnFamilyBytes, columnQualifierBytes, value);
+    this.table.put(put)
   }
 
 
-  override def putInt(columnFamily: String, rowKey: String, columnQualifier: String, intVal: Int): Unit = ???
+  override def putInt(rowKey: String, columnFamily: String, columnQualifier: String, value: Int): Unit = {
+    putValue(rowKey, columnFamily, columnQualifier, Bytes.toBytes(value))
+  }
 
-  override def putString(columnFamily: String, rowKey: String, columnQualifier: String, strVal: String): Unit = ???
+  override def putString(rowKey: String, columnFamily: String, columnQualifier: String, value: String): Unit = {
+    putValue(rowKey, columnFamily, columnQualifier, Bytes.toBytes(value))
+  }
 
-  override def putBoolean(columnFamily: String, rowKey: String, columnQualifier: String, boolVal: Boolean): Unit = ???
+  override def putBoolean(rowKey: String, columnFamily: String, columnQualifier: String, value: Boolean): Unit = {
+    putValue(rowKey, columnFamily, columnQualifier, Bytes.toBytes(value))
+  }
 }

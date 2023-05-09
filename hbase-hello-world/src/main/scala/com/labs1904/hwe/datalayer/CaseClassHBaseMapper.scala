@@ -1,30 +1,28 @@
 package com.labs1904.hwe.datalayer
 
-import scala.collection.immutable
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe
-import scala.reflect.runtime.universe._
+import scala.reflect.runtime.universe.{TypeTag, typeOf}
 
 class CaseClassHBaseMapper(dataConnection: IDataConnection) {
 
 
-  def put[TCaseClass :TypeTag](rowKey: String, columnFamily: String, caseClass: TCaseClass): Unit = {
 
-    val myType: universe.Type = weakTypeOf[TCaseClass]
-    val pLists = weakTypeOf[TCaseClass].paramLists
-
-    val x: Product = caseClass.asInstanceOf[Product]
-
-
-    var i: Int = -1
-    val members: Iterable[(String, universe.Type, Any)] = typeOf[TCaseClass].members.collect {
-      case m: MethodSymbol if m.isCaseAccessor =>{
-        i += 1
-
-        val member: universe.Symbol = myType.member(m.name)
-
-        (m.name.toString, m.returnType, 1)
-      }
+  private def getMemberInfos[TCaseClass](a: TCaseClass)(implicit tt: TypeTag[TCaseClass], ct: ClassTag[TCaseClass]): Iterable[(String, universe.Type, Any)] = {
+    val members = tt.tpe.members.collect {
+      case m if m.isMethod && m.asMethod.isCaseAccessor => m.asMethod
     }
+    val memberInfos: Iterable[(String, universe.Type, Any)] = members.map { member =>
+      val memberValue: Any = tt.mirror.reflect(a).reflectMethod(member)()
+      (member.name.toString, member.returnType, memberValue)
+    }
+    memberInfos
+  }
+
+
+  def put[TCaseClass <: Product](rowKey: String, columnFamily: String, caseClass: TCaseClass)(implicit tt: TypeTag[TCaseClass], ct: ClassTag[TCaseClass]): Unit = {
+
+    val members: Iterable[(String, universe.Type, Any)] = getMemberInfos(caseClass)
 
     members.foreach { case (name, tpe, value) =>
       tpe match {

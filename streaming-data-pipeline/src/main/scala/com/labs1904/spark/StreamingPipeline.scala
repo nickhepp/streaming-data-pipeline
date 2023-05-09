@@ -1,10 +1,14 @@
 package com.labs1904.spark
 
+import com.labs1904.spark.data.{Review, ReviewParser}
 import org.apache.log4j.Logger
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{Dataset, SparkSession}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
-
 import com.labs1904.spark.util._
+import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
+import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Table}
+
+import scala.util.Try
 
 /**
  * Spark Structured Streaming app
@@ -48,11 +52,43 @@ object StreamingPipeline {
         .selectExpr("CAST(value AS STRING)").as[String]
 
       // TODO: implement logic here
+      val reviews: Dataset[Review] = ds.flatMap((rawReview: String) =>
+      {
+        val review = ReviewParser.parseRawReview(rawReview)
+        review
+      }): Dataset[Review]
+
+      reviews.mapPartitions(reviewPartion => {
+
+        val conf = HBaseConfiguration.create()
+        conf.set("hbase.zookeeper.quorum", HBaseConnection.HBASE_ZOOKEEPER_QUORUM)
+        var connection: Connection = ConnectionFactory.createConnection(conf)
+        val table: Table = connection.getTable(TableName.valueOf(HBaseConnection.HBASE_TABLE))
+
+
+        reviewPartion.map((review: Review) => {
+          /*
+          - Rowkey: 99
+          - username: DE-HWE
+          - name: The Panther
+          - sex: F
+          - favorite_color: pink
+           */
+
+
+          1
+        })
+
+
+        connection.close()
+
+      })
+
 
       // transform the logic
 
 
-      val result = ds
+      val result = reviews
 
       // Write output to console
       val query = result.writeStream

@@ -4,6 +4,7 @@ import org.apache.log4j.Logger
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 
+import com.labs1904.spark.util._
 
 /**
  * Spark Structured Streaming app
@@ -14,9 +15,6 @@ object StreamingPipeline {
   val jobName = "StreamingPipeline"
 
   val hdfsUrl = "CHANGEME"
-  val bootstrapServers = "CHANGEME"
-  val username = "CHANGEME"
-  val password = "CHANGEME"
   val hdfsUsername = "CHANGEME" // TODO: set this to your handle
 
   //Use this for Windows
@@ -37,19 +35,23 @@ object StreamingPipeline {
       val ds = spark
         .readStream
         .format("kafka")
-        .option("kafka.bootstrap.servers", bootstrapServers)
+        .option("kafka.bootstrap.servers", KafkaConnection.BOOTSTRAP_SERVER)
         .option("subscribe", "reviews")
         .option("startingOffsets", "earliest")
         .option("maxOffsetsPerTrigger", "20")
         .option("startingOffsets","earliest")
         .option("kafka.security.protocol", "SASL_SSL")
         .option("kafka.sasl.mechanism", "SCRAM-SHA-512")
-        .option("kafka.ssl.truststore.location", trustStore)
-        .option("kafka.sasl.jaas.config", getScramAuthString(username, password))
+        .option("kafka.ssl.truststore.location", KafkaConnection.TRUST_STORE)
+        .option("kafka.sasl.jaas.config", getScramAuthString(KafkaConnection.USERNAME, KafkaConnection.PASSWORD))
         .load()
         .selectExpr("CAST(value AS STRING)").as[String]
 
       // TODO: implement logic here
+
+      // transform the logic
+
+
       val result = ds
 
       // Write output to console

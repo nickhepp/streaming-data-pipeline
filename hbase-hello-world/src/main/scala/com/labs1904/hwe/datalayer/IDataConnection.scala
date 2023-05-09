@@ -2,11 +2,11 @@ package com.labs1904.hwe.datalayer
 
 trait IDataConnection {
 
-  def putString(rowKey: String, columnFamily: String, columnQualifier: String, strVal: String): Unit
+  def putString(rowKey: String, columnFamily: String, columnQualifier: String, value: String): Unit
 
-  def putInt(rowKey: String, columnFamily: String, columnQualifier: String, intVal: Int): Unit
+  def putInt(rowKey: String, columnFamily: String, columnQualifier: String, value: Int): Unit
 
-  def putBoolean(rowKey: String, columnFamily: String, columnQualifier: String, boolVal: Boolean): Unit
+  def putBoolean(rowKey: String, columnFamily: String, columnQualifier: String, value: Boolean): Unit
 
   def getString(rowKey: String, columnFamily : String, columnQualifier: String) : String
 

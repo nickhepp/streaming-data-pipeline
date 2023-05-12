@@ -51,5 +51,56 @@ class CaseClassHBaseMapperTest extends FunSpec {
 
     }
   }
-  
+
+  describe("CaseClassHBaseMapper get") {
+    it("Tests serializing a case class to an HBase database") {
+
+      // -- arrange
+      val rowKey = "rowKey"
+      val clmnFam = "clmFam"
+
+      val intClmnQual = "ValInt1"
+      val intVal = 3
+
+      val strClmnQual = "ValStr2"
+      val strVal = "my-str"
+
+      val boolClmnQual = "ValBool3"
+      val boolVal = true
+
+      val mockedDataConn: IDataConnection = mock[IDataConnection]
+      mockedDataConn.getInt(rowKey, clmnFam, intClmnQual).andReturn(intVal)
+      mockedDataConn.getString(rowKey, clmnFam, strClmnQual).andReturn(strVal)
+      mockedDataConn.getBoolean(rowKey, clmnFam, boolClmnQual).andReturn(boolVal)
+
+
+      //      expecting {
+//        eexpect(mockedDataConn.getInt(rowKey, clmnFam, intClmnQual)).anyTimes().andReturn(intVal)
+//        eexpect(mockedDataConn.getString(rowKey, clmnFam, strClmnQual)).anyTimes().andReturn(strVal)
+//        eexpect(mockedDataConn.getBoolean(rowKey, clmnFam, boolClmnQual)).anyTimes().andReturn(boolVal)
+//      }
+
+      val ccMapper = new CaseClassHBaseMapper(mockedDataConn)
+
+      // -- act
+      whenExecuting(mockedDataConn) {
+        val item: TestSerializationClass = ccMapper.get[TestSerializationClass](rowKey, clmnFam)
+
+        // assert
+        assert(item.ValInt1 == intVal)
+        assert(item.ValStr2 == strVal);
+        assert(item.ValBool3 == boolVal);
+
+      }
+
+
+
+
+
+    }
+  }
+
+
+
+
 }

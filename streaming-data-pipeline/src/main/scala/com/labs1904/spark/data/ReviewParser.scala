@@ -22,10 +22,12 @@ object ReviewParser {
       val verified_purchase: Option[Boolean] = tryToYesNoBoolean(reviewParts(11))
       val review_headline: String = reviewParts(12)
       val review_body: String = reviewParts(13)
-      val review_date: Option[ReviewDate] = tryToReviewDate(reviewParts(14))
+      val review_date: String = reviewParts(14)
+      //val review_date: Option[ReviewDate] = tryToReviewDate(reviewParts(14))
 
       val options = Array(customer_id, product_parent, star_rating, helpful_votes, total_votes,
-        vine, verified_purchase, review_date)
+        vine, verified_purchase//, review_date
+      )
 
       if (options.forall(opt => opt.isDefined))
         {
@@ -45,7 +47,8 @@ object ReviewParser {
               verified_purchase.get,
               review_headline,
               review_body,
-              review_date.get
+              review_date
+              //review_date.get
             )
 
           )

@@ -1,12 +1,14 @@
 package com.labs1904.spark
 
-import com.labs1904.spark.data.{Review, ReviewParser}
+import com.labs1904.spark.data.{CustomerProfile, Review, ReviewParser, CustomerProfileWithReview, ReviewDate}
+import com.labs1904.spark.datalayer.{CaseClassHBaseMapper, HBaseDataConnection}
 import org.apache.log4j.Logger
 import org.apache.spark.sql.{Dataset, SparkSession}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import com.labs1904.spark.util._
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Table}
+import org.apache.spark.sql.catalyst.encoders.RowEncoder
 
 import scala.util.Try
 
@@ -54,41 +56,122 @@ object StreamingPipeline {
       // TODO: implement logic here
       val reviews: Dataset[Review] = ds.flatMap((rawReview: String) =>
       {
-        val review = ReviewParser.parseRawReview(rawReview)
+        val review: Option[Review] = ReviewParser.parseRawReview(rawReview)
         review
       }): Dataset[Review]
 
-      reviews.mapPartitions(reviewPartion => {
+      // compiles
+      //val custProfWithReviewsDs: Dataset[Review] = reviews.map(review => review)
+
+      // compiles
+//      val custProfWithReviewsDs: Dataset[Review] = reviews.mapPartitions(reviewPartition => {
+//        val custProfWithReviews = reviewPartition.map(review => {
+//          review
+//        }).toList
+//        custProfWithReviews.iterator
+//      })
+
+      // compiles
+//      val custProfWithReviewsDs: Dataset[ReviewDate] = reviews.mapPartitions(reviewPartition => {
+//        val custProfWithReviews = reviewPartition.map(review => {
+//          ReviewDate(1, 2, 3)
+//        }).toList
+//        custProfWithReviews.iterator
+//      })
+
+      // compiles
+//      val custProfWithReviewsDs: Dataset[CustomerProfile] = reviews.mapPartitions(reviewPartition => {
+//        val custProfWithReviews = reviewPartition.map(review => {
+//          CustomerProfile(
+//            "username",
+//            "name",
+//            "sex",
+//            "favorite_color")
+//        }).toList
+//        custProfWithReviews.iterator
+//      })
+
+      // compiles
+//      val custProfWithReviewsDs: Dataset[CustomerProfileWithReview] = reviews.mapPartitions(reviewPartition => {
+//        val custProfWithReviews = reviewPartition.map(review => {
+//          val custProf = CustomerProfile(
+//            "username",
+//            "name",
+//            "sex",
+//            "favorite_color")
+//          CustomerProfileWithReview(custProf, review)
+//        }).toList
+//        custProfWithReviews.iterator
+//      })
+
+      val custProfWithReviewsDs: Dataset[CustomerProfileWithReview] = reviews.mapPartitions(reviewPartition => {
 
         val conf = HBaseConfiguration.create()
         conf.set("hbase.zookeeper.quorum", HBaseConnection.HBASE_ZOOKEEPER_QUORUM)
-        var connection: Connection = ConnectionFactory.createConnection(conf)
+        val connection: Connection = ConnectionFactory.createConnection(conf)
         val table: Table = connection.getTable(TableName.valueOf(HBaseConnection.HBASE_TABLE))
+        val hbaseDataConn: HBaseDataConnection = new HBaseDataConnection(table)
+        val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
 
-
-        reviewPartion.map((review: Review) => {
-          /*
-          - Rowkey: 99
-          - username: DE-HWE
-          - name: The Panther
-          - sex: F
-          - favorite_color: pink
-           */
-
-
-          1
-        })
-
+        val custProfWithReviews = reviewPartition.map(review => {
+          //val custProf = CustomerProfile(
+          //  "username",
+          //  "name",
+          //  "sex",
+          //  "favorite_color")
+          val custProf: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
+              rowKey = review.customer_id.toString,
+              columnFamily = "f1"
+              )
+          CustomerProfileWithReview(custProf, review)
+        }).toList
 
         connection.close()
 
+        custProfWithReviews.iterator
       })
 
 
+/*
+      val custProfWithReviewsDs = reviews.mapPartitions(reviewPartition => {
+
+
+        //val conf = HBaseConfiguration.create()
+        //conf.set("hbase.zookeeper.quorum", HBaseConnection.HBASE_ZOOKEEPER_QUORUM)
+        //var connection: Connection = ConnectionFactory.createConnection(conf)
+        //val table: Table = connection.getTable(TableName.valueOf(HBaseConnection.HBASE_TABLE))
+
+        //val hbaseDataConn: HBaseDataConnection = new HBaseDataConnection(table)
+        //val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
+
+        //        val custProfWithReviews = reviewPartition.map((review: Review) => {
+        //
+        //          // read the customer profile
+        //          val custProfile: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
+        //            rowKey = review.customer_id.toString,
+        //            columnFamily = "f1"
+        //          )
+        //          //return CustomerProfileWithReview(custProfile, review)
+        //          return ReviewDate(1, 2, 3)
+        //        }).toList
+
+        val custProfWithReviews = reviewPartition.map(review => {
+          //ReviewDate(review.customer_id, 2, 3)
+          5
+        }).toList
+
+        return custProfWithReviews
+        //connection.close()
+
+        return custProfWithReviews.iterator
+
+      })
+*/
+
       // transform the logic
 
-
-      val result = reviews
+      //val result = reviews
+      val result = custProfWithReviewsDs
 
       // Write output to console
       val query = result.writeStream

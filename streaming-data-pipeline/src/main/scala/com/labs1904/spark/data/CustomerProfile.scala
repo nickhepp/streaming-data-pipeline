@@ -1,6 +1,11 @@
 package com.labs1904.spark.data
 
-case class CustomerProfile()
+case class CustomerProfile(
+                           username: String,
+                           name: String,
+                           sex: String,
+                           favorite_color: String
+                          )
 
 /*
 -Rowkey: 99

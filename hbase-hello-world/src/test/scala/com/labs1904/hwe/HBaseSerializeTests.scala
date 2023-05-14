@@ -11,7 +11,7 @@ class HBaseSerializeTests extends FunSpec {
 
 
       // Get the type of the class
-      val myType = typeOf[TestSerializationClass]
+      val myType = typeOf[TestSerialization1Class]
 
       // Get the constructor of the class
       val myConstructor = myType.decl(termNames.CONSTRUCTOR).asMethod

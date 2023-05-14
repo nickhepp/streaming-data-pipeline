@@ -14,4 +14,6 @@ case class Review(marketplace: String,
                   verified_purchase: Boolean,
                   review_headline: String,
                   review_body: String,
-                  review_date: ReviewDate)
+                  review_date: String
+                  //review_date: ReviewDate
+  )

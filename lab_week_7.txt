@@ -1,0 +1,107 @@
+
+== Everyone has their own HDFS home directory with a reviews folder inside, for example:
+==
+== /user/kmenke/reviews/
+
+== Create a database for yourself using your handle: first initial + last name
+	CREATE DATABASE IF NOT EXISTS nheppermann
+	
+== Create an external table named “reviews_ext” in your database on top of the data stored in the reviews_external directory. Verify you can query it with “select * from reviews”
+CREATE EXTERNAL TABLE IF NOT EXISTS reviews(
+	marketplace STRING,
+	customer_id STRING,
+	review_id STRING,
+	product_id STRING,
+	product_parent STRING,
+	product_title STRING,
+	product_category STRING,
+	star_rating STRING,
+	helpful_votes STRING,
+	total_votes STRING,
+	vine STRING,
+	verified_purchase STRING,
+	review_headline STRING,
+	review_body STRING,
+	review_date STRING
+) COMMENT 'this is a comment'
+ROW FORMAT
+	DELIMITED FIELDS TERMINATED BY '\t'
+	ESCAPED BY '\\'
+	LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION '/user/nheppermann/reviews'
+tblproperties("skip.header.line.count"="1");
+
+
+== How many reviews gave 2 stars? 
+	SELECT COUNT(*) AS Review2StarCount FROM reviews WHERE reviews.star_rating = '2' 
+	1
+	
+
+== 5 stars?
+	SELECT COUNT(*) AS Review5StarCount FROM reviews WHERE reviews.star_rating = '5' 
+	6
+
+== How many reviews were verified reviews?
+	SELECT COUNT(*) FROM reviews WHERE reviews.verified_purchase = 'Y'
+	9
+
+== Drop your reviews_ext table.
+	DROP TABLE IF EXISTS reviews
+
+
+== Was your data deleted? How do you know?
+	No, my folder was still there
+
+
+== Create an internal table named reviews_int in your database. LOAD the data from the reviews folder into this table.
+CREATE TABLE IF NOT EXISTS reviews_int(
+	marketplace STRING,
+	customer_id STRING,
+	review_id STRING,
+	product_id STRING,
+	product_parent STRING,
+	product_title STRING,
+	product_category STRING,
+	star_rating STRING,
+	helpful_votes STRING,
+	total_votes STRING,
+	vine STRING,
+	verified_purchase STRING,
+	review_headline STRING,
+	review_body STRING,
+	review_date STRING
+) COMMENT 'this is a comment'
+ROW FORMAT
+	DELIMITED FIELDS TERMINATED BY '\t'
+	ESCAPED BY '\\'
+	LINES TERMINATED BY '\n'
+STORED AS TEXTFILE
+LOCATION '/user/nheppermann/reviews'
+tblproperties("skip.header.line.count"="1");
+
+
+== Drop your reviews_int table.
+
+== Was your data deleted? How do you know?
+	Yes, my folder was removed
+
+EXTRA CREDIT: Update your Spark program to write data to a new folder in your user directory and create a hive table on top of it.
+
+We will continue this next week.
+
+
+
+
+http://hbase01.labs1904.com:8888/
+
+val spark = SparkSession.builder()
+	.config("spark.hadoop.dfs.client.use.datanode.hostname", "true")
+	.config("spark.hadoop.defaultFS", hdfsUrl)
+
+val query = result.writeStream
+	.outputMode(OutputMode.Append())
+	.format("json")
+	.option("path", s"/user/${HDFS_USERNAME}/reviews_json")
+	.option("checkpointLocation", s"/user/${HDFS_USERNAME}/reviews_checkpoint")
+	.trigger...

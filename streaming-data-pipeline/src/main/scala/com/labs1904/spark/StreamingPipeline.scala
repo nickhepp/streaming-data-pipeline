@@ -53,6 +53,7 @@ object StreamingPipeline {
         .load()
         .selectExpr("CAST(value AS STRING)").as[String]
 
+
       // TODO: implement logic here
       val reviews: Dataset[Review] = ds.flatMap((rawReview: String) =>
       {
@@ -178,7 +179,7 @@ object StreamingPipeline {
         .outputMode(OutputMode.Append())
         .format("console")
         .option("truncate", false)
-        .trigger(Trigger.ProcessingTime("5 seconds"))
+        .trigger(Trigger.ProcessingTime("15 seconds"))
         .start()
 
       // Write output to HDFS

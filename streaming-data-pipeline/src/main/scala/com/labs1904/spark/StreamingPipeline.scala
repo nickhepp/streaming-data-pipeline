@@ -10,9 +10,6 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Table}
-import org.apache.spark.sql.catalyst.encoders.RowEncoder
-
-import scala.util.Try
 
 /**
  * Spark Structured Streaming app
@@ -90,6 +87,18 @@ object StreamingPipeline {
       //val result = reviews
       val result: DataFrame = custProfWithReviewsDs.select("customerProfile.*", "review.*")
 
+      // Write output to HDFS
+      val query = result.writeStream
+        .outputMode(OutputMode.Append())
+        .format("csv")
+        .option("delimiter", "\t")
+        .option("path", s"/user/${HDFS_USERNAME}/reviews_csv")
+        .option("checkpointLocation", s"/user/${HDFS_USERNAME}/reviews_checkpoint")
+        .partitionBy("star_rating")
+        .trigger(Trigger.ProcessingTime("15 seconds"))
+        .start()
+      query.awaitTermination()
+
       // Write output to console
       /*
       val query1 = result.writeStream
@@ -101,17 +110,6 @@ object StreamingPipeline {
       query1.awaitTermination()
       */
 
-      // Write output to HDFS
-      val query = result.writeStream
-        .outputMode(OutputMode.Append())
-        .format("csv")
-        .option("delimiter", "\t")
-        .option("path", s"/user/${HDFS_USERNAME}/reviews_csv")
-        .option("checkpointLocation", s"/user/${HDFS_USERNAME}/reviews_checkpoint")
-        //.partitionBy("star_rating")
-        .trigger(Trigger.ProcessingTime("15 seconds"))
-        .start()
-      query.awaitTermination()
 
     } catch {
       case e: Exception => logger.error(s"$jobName error in main", e)

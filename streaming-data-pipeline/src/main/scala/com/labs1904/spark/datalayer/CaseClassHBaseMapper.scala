@@ -73,26 +73,6 @@ class CaseClassHBaseMapper(dataConnection: IDataConnection) {
 
     constructorMirror(theArgs: _*).asInstanceOf[TCaseClass]
 
-
-
   }
-  /*
-
-  case class MyClass(id:Long,name:String)
-
-  def instantiate[T](classArgs: List[AnyRef])(implicit m : Manifest[T]) : T ={
-        val constructor = m.erasure.getConstructors()(0)
-        constructor.newInstance(classArgs:_*).asInstanceOf[T]
-      }
-
-  val list = List[AnyRef](new java.lang.Long(1),"a name")
-  val result = instantiate[MyClass](list)
-  println(result.id)
-
-
-
-   */
-
-
 
 }

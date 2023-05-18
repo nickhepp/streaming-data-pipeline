@@ -6,12 +6,3 @@ case class CustomerProfile(
                            sex: String,
                            favorite_color: String
                           )
-
-/*
--Rowkey: 99
--username: DE - HWE
--name: The Panther
-  - sex
-: F
-  -favorite_color: pink
-*/

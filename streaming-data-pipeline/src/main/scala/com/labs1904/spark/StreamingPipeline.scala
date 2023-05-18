@@ -1,11 +1,13 @@
 package com.labs1904.spark
 
-import com.labs1904.spark.data.{CustomerProfile, Review, ReviewParser, CustomerProfileWithReview, ReviewDate}
+import com.labs1904.spark.data.{CustomerProfile, CustomerProfileWithReview, Review, ReviewDate, ReviewParser}
 import com.labs1904.spark.datalayer.{CaseClassHBaseMapper, HBaseDataConnection}
+import com.labs1904.spark.util.HdfsConnection._
+import com.labs1904.spark.util.KafkaConnection
+import com.labs1904.spark.util.HBaseConnection
 import org.apache.log4j.Logger
-import org.apache.spark.sql.{Dataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.sql.streaming.{OutputMode, Trigger}
-import com.labs1904.spark.util._
 import org.apache.hadoop.hbase.{HBaseConfiguration, TableName}
 import org.apache.hadoop.hbase.client.{Connection, ConnectionFactory, Table}
 import org.apache.spark.sql.catalyst.encoders.RowEncoder
@@ -20,9 +22,6 @@ object StreamingPipeline {
   lazy val logger: Logger = Logger.getLogger(this.getClass)
   val jobName = "StreamingPipeline"
 
-  val hdfsUrl = "CHANGEME"
-  val hdfsUsername = "CHANGEME" // TODO: set this to your handle
-
   //Use this for Windows
   val trustStore: String = "src\\main\\resources\\kafka.client.truststore.jks"
   //Use this for Mac
@@ -32,6 +31,10 @@ object StreamingPipeline {
     try {
       val spark = SparkSession.builder()
         .config("spark.sql.shuffle.partitions", "3")
+
+        .config("spark.hadoop.dfs.client.use.datanode.hostname", "true")
+        .config("spark.hadoop.fs.defaultFS", HDFS_URL)
+
         .appName(jobName)
         .master("local[*]")
         .getOrCreate()
@@ -61,49 +64,6 @@ object StreamingPipeline {
         review
       }): Dataset[Review]
 
-      // compiles
-      //val custProfWithReviewsDs: Dataset[Review] = reviews.map(review => review)
-
-      // compiles
-//      val custProfWithReviewsDs: Dataset[Review] = reviews.mapPartitions(reviewPartition => {
-//        val custProfWithReviews = reviewPartition.map(review => {
-//          review
-//        }).toList
-//        custProfWithReviews.iterator
-//      })
-
-      // compiles
-//      val custProfWithReviewsDs: Dataset[ReviewDate] = reviews.mapPartitions(reviewPartition => {
-//        val custProfWithReviews = reviewPartition.map(review => {
-//          ReviewDate(1, 2, 3)
-//        }).toList
-//        custProfWithReviews.iterator
-//      })
-
-      // compiles
-//      val custProfWithReviewsDs: Dataset[CustomerProfile] = reviews.mapPartitions(reviewPartition => {
-//        val custProfWithReviews = reviewPartition.map(review => {
-//          CustomerProfile(
-//            "username",
-//            "name",
-//            "sex",
-//            "favorite_color")
-//        }).toList
-//        custProfWithReviews.iterator
-//      })
-
-      // compiles
-//      val custProfWithReviewsDs: Dataset[CustomerProfileWithReview] = reviews.mapPartitions(reviewPartition => {
-//        val custProfWithReviews = reviewPartition.map(review => {
-//          val custProf = CustomerProfile(
-//            "username",
-//            "name",
-//            "sex",
-//            "favorite_color")
-//          CustomerProfileWithReview(custProf, review)
-//        }).toList
-//        custProfWithReviews.iterator
-//      })
 
       val custProfWithReviewsDs: Dataset[CustomerProfileWithReview] = reviews.mapPartitions(reviewPartition => {
 
@@ -115,11 +75,6 @@ object StreamingPipeline {
         val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
 
         val custProfWithReviews = reviewPartition.map(review => {
-          //val custProf = CustomerProfile(
-          //  "username",
-          //  "name",
-          //  "sex",
-          //  "favorite_color")
           val custProf: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
               rowKey = review.customer_id.toString,
               columnFamily = "f1"
@@ -132,65 +87,32 @@ object StreamingPipeline {
         custProfWithReviews.iterator
       })
 
-
-/*
-      val custProfWithReviewsDs = reviews.mapPartitions(reviewPartition => {
-
-
-        //val conf = HBaseConfiguration.create()
-        //conf.set("hbase.zookeeper.quorum", HBaseConnection.HBASE_ZOOKEEPER_QUORUM)
-        //var connection: Connection = ConnectionFactory.createConnection(conf)
-        //val table: Table = connection.getTable(TableName.valueOf(HBaseConnection.HBASE_TABLE))
-
-        //val hbaseDataConn: HBaseDataConnection = new HBaseDataConnection(table)
-        //val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
-
-        //        val custProfWithReviews = reviewPartition.map((review: Review) => {
-        //
-        //          // read the customer profile
-        //          val custProfile: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
-        //            rowKey = review.customer_id.toString,
-        //            columnFamily = "f1"
-        //          )
-        //          //return CustomerProfileWithReview(custProfile, review)
-        //          return ReviewDate(1, 2, 3)
-        //        }).toList
-
-        val custProfWithReviews = reviewPartition.map(review => {
-          //ReviewDate(review.customer_id, 2, 3)
-          5
-        }).toList
-
-        return custProfWithReviews
-        //connection.close()
-
-        return custProfWithReviews.iterator
-
-      })
-*/
-
-      // transform the logic
-
       //val result = reviews
-      val result = custProfWithReviewsDs
+      val result: DataFrame = custProfWithReviewsDs.select("customerProfile.*", "review.*")
 
       // Write output to console
-      val query = result.writeStream
+      /*
+      val query1 = result.writeStream
         .outputMode(OutputMode.Append())
         .format("console")
         .option("truncate", false)
-        .trigger(Trigger.ProcessingTime("15 seconds"))
+        .trigger(Trigger.ProcessingTime("5 seconds"))
         .start()
+      query1.awaitTermination()
+      */
 
       // Write output to HDFS
-//      val query = result.writeStream
-//        .outputMode(OutputMode.Append())
-//        .format("json")
-//        .option("path", s"/user/${hdfsUsername}/reviews_json")
-//        .option("checkpointLocation", s"/user/${hdfsUsername}/reviews_checkpoint")
-//        .trigger(Trigger.ProcessingTime("5 seconds"))
-//        .start()
+      val query = result.writeStream
+        .outputMode(OutputMode.Append())
+        .format("csv")
+        .option("delimiter", "\t")
+        .option("path", s"/user/${HDFS_USERNAME}/reviews_csv")
+        .option("checkpointLocation", s"/user/${HDFS_USERNAME}/reviews_checkpoint")
+        //.partitionBy("star_rating")
+        .trigger(Trigger.ProcessingTime("15 seconds"))
+        .start()
       query.awaitTermination()
+
     } catch {
       case e: Exception => logger.error(s"$jobName error in main", e)
     }

@@ -4,8 +4,8 @@ package com.labs1904.spark.util
 /*
 The connection class requires creating 2 environment variable before running the app and possibly before starting IntelliJ (see further explanation below).  Please fill the following environment variables with values provided by the HWE admins:
 
-- HWE_HIVE_HDFS_URL
-- HWE_HIVE_USERNAME
+- HWE_HDFS_URL
+- HWE_HDFS_USERNAME
 
 If the environment variables are not present, an exception will be thrown informing developers
 what environment variable(s) are missing.
@@ -13,7 +13,7 @@ what environment variable(s) are missing.
 Note that some environments like Windows need to have IntelliJ restarted before the environment variables will be present in the environment (I haven't tested Linux and Mac).
  */
 
-object HiveConnection {
+object HdfsConnection {
 
   private def getConnectionValue(envVarName: String): String = {
     val envVar: Option[String] = sys.env.get(envVarName)
@@ -34,19 +34,19 @@ object HiveConnection {
    * @throws IllegalStateException if the environment variable is not found
    */
   @throws(classOf[IllegalStateException])
-  val HIVE_HDFS_URL: String = {
-    getConnectionValue("HWE_HIVE_HDFS_URL")
+  val HDFS_URL: String = {
+    getConnectionValue("HWE_HDFS_URL")
   }
 
-  /** Your specific HBase table used in lab.  Value should be:
-   * `<first letter of first name><last name>:users`.
-   * For example, Kit's table will be `kmenke:users`.
+  /** Your specific Hive username to build table and data folder paths.  Value should be:
+   * `<first letter of first name><last name>`.
+   * For example, Kit's table will be `kmenke`.
    *
    * @throws IllegalStateException if the environment variable is not found
    */
   @throws(classOf[IllegalStateException])
-  val HIVE_USERNAME: String = {
-    getConnectionValue("HWE_HIVE_USERNAME")
+  val HDFS_USERNAME: String = {
+    getConnectionValue("HWE_HDFS_USERNAME")
   }
 
 

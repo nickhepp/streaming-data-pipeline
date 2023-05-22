@@ -26,7 +26,7 @@ val mapper = new CaseClassHBaseMapper(connection)
 val person = Person(1, "John Doe", 30)
 
 // Store the person object in HBase
-mapper.put("rowKey1", "columnFamily1", person)
+mapper.put[Person]("rowKey1", "columnFamily1", person)
 
 // Retrieve the person object from HBase
 val retrievedPerson = mapper.get[Person]("rowKey1", "columnFamily1")
@@ -58,7 +58,19 @@ trait IDataConnection {
 }
 ```
 
-This project provides unit tests using mock IDataConnection objects for verficaition. 
+This project provides unit tests using mock IDataConnection objects for verficaition.
+
+# Further Exploration and Extensions
+
+## Testing Speed and Performance
+Reflection operations can be computationally expensive, and it's essential to evaluate the impact of reflection on the performance of the CaseClassHBaseMapper. During initial invocations during unit tests, a delay of several seconds was observed while successive calls only took milliseconds.  At this time its unknown whether this delay experienced in unit testing translates to Spark executors: will it be a one-time overhead or if it would occur repeatedly?
+
+## Handling Complex Fields
+The CaseClassHBaseMapper currently has a limitation in its support for complex fields. It relies on the capabilities of the IDataConnection interface to serialize/deserialize fields, which currently only handles simple types such as Ints, Strings, and Booleans.
+
+To overcome this limitation, one approach is to enhance the CaseClassHBaseMapper to support complex fields within case classes. This can be achieved by implementing object-type-to-lambda method serialization/deserialization mapping. By doing so, complex fields, including nested case classes or custom classes, would provide the mechanisms for allowing `CaseClassHBaseMapper` to handle the complex data structures storing/retrieving them to/from a single column.
+
+By expanding the mapper's capabilities to handle complex fields, you can effectively map case classes with sophisticated data structures to HBase records while still not requiring tons of boilerplate code.
 
 # Conclusion
 The CaseClassHBaseMapper class simplifies mapping case classes to HBase records, reducing boilerplate code and providing a more concise way to interact with HBase.

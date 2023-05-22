@@ -1,7 +1,7 @@
 package com.labs1904.spark
 
 import com.labs1904.spark.data.{CustomerProfile, CustomerProfileWithReview, Review, ReviewDate, ReviewParser}
-import com.labs1904.spark.datalayer.{CaseClassHBaseMapper, HBaseDataConnection}
+import com.labs1904.spark.datalayer.{CaseClassHBaseMapper, CustomerProfileDataConnection, HBaseDataConnection, IDataConnection}
 import com.labs1904.spark.util.HdfsConnection._
 import com.labs1904.spark.util.KafkaConnection
 import com.labs1904.spark.util.HBaseConnection
@@ -38,11 +38,23 @@ object StreamingPipeline {
 
       import spark.implicits._
 
+      val reviewsAndJunk: Boolean = false;
+
+      var topicName: String = "reviews"
+      var reviewsFolder: String = "reviews_csv2"
+      var reviewsCheckpointFolder: String = "reviews_checkpoint2";
+      if (reviewsAndJunk)
+        {
+          topicName = "reviews-and-junk"
+          reviewsFolder = "reviews_n_junk_csv"
+          reviewsCheckpointFolder = "reviews_n_junk_checkpoint"
+        }
+
       val ds = spark
         .readStream
         .format("kafka")
         .option("kafka.bootstrap.servers", KafkaConnection.BOOTSTRAP_SERVER)
-        .option("subscribe", "reviews")
+        .option("subscribe", topicName)
         .option("startingOffsets", "earliest")
         .option("maxOffsetsPerTrigger", "20")
         .option("startingOffsets","earliest")
@@ -69,13 +81,11 @@ object StreamingPipeline {
         val connection: Connection = ConnectionFactory.createConnection(conf)
         val table: Table = connection.getTable(TableName.valueOf(HBaseConnection.HBASE_TABLE))
         val hbaseDataConn: HBaseDataConnection = new HBaseDataConnection(table)
-        val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
+        //val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(hbaseDataConn)
 
         val custProfWithReviews = reviewPartition.map(review => {
-          val custProf: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
-              rowKey = review.customer_id.toString,
-              columnFamily = "f1"
-              )
+          val custProf = getCustomerProfileViaCaseClassHBaseMapper(review, hbaseDataConn)
+          //val custProf = getCustomerProfileViaDataConnection(review, hbaseDataConn)
           CustomerProfileWithReview(custProf, review)
         }).toList
 
@@ -92,10 +102,10 @@ object StreamingPipeline {
         .outputMode(OutputMode.Append())
         .format("csv")
         .option("delimiter", "\t")
-        .option("path", s"/user/${HDFS_USERNAME}/reviews_csv")
-        .option("checkpointLocation", s"/user/${HDFS_USERNAME}/reviews_checkpoint")
+        .option("path", s"/user/${HDFS_USERNAME}/${reviewsFolder}")
+        .option("checkpointLocation", s"/user/${HDFS_USERNAME}/${reviewsCheckpointFolder}")
         .partitionBy("star_rating")
-        .trigger(Trigger.ProcessingTime("15 seconds"))
+        .trigger(Trigger.ProcessingTime("30 seconds"))
         .start()
       query.awaitTermination()
 
@@ -121,4 +131,21 @@ object StreamingPipeline {
    username=\"$username\"
    password=\"$password\";"""
   }
+
+  def getCustomerProfileViaCaseClassHBaseMapper(review: Review, dataConn: IDataConnection): CustomerProfile = {
+    val ccHBaseMapper: CaseClassHBaseMapper = new CaseClassHBaseMapper(dataConn)
+    val custProf: CustomerProfile = ccHBaseMapper.get[CustomerProfile](
+      rowKey = review.customer_id.toString,
+      columnFamily = "f1")
+    custProf
+  }
+
+  def getCustomerProfileViaDataConnection(review: Review, dataConn: IDataConnection): CustomerProfile = {
+    val custProfileDataConn: CustomerProfileDataConnection = new CustomerProfileDataConnection(dataConn)
+    val custProf: CustomerProfile = custProfileDataConn.getCustomerProfile(
+      rowKey = review.customer_id.toString,
+      columnFamily = "f1")
+    custProf
+  }
+
 }

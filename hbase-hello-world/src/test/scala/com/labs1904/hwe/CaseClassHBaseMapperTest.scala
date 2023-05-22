@@ -115,7 +115,8 @@ class CaseClassHBaseMapperTest extends FunSpec {
 
   describe("CaseClassHBaseMapper put") {
     it("Tests serializing a case class to an HBase database") {
-      executeSerialization1Test()
+      val firstTimingInMillisecs: Long = executeSerialization1Test()
+      System.out.println(s"Single timing $firstTimingInMillisecs msecs")
     }
   }
 
@@ -143,7 +144,8 @@ class CaseClassHBaseMapperTest extends FunSpec {
 
   describe("CaseClassHBaseMapper get") {
     it("Tests deserializing a case class from an HBase database") {
-      executeDeserialization1Test()
+      val firstTimingInMillisecs: Long = executeDeserialization1Test()
+      System.out.println(s"Single timing $firstTimingInMillisecs msecs")
     }
   }
 
@@ -164,6 +166,4 @@ class CaseClassHBaseMapperTest extends FunSpec {
 
     }
   }
-
-
 }
